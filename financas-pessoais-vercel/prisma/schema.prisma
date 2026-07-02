@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String            @id @default(cuid())
+  name         String
+  email        String            @unique
+  passwordHash String            @map("password_hash")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  subscriptions Subscription[]
+  records       FinancialRecord[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id           String             @id @default(cuid())
+  userId       String             @map("user_id")
+  platformName String             @map("platform_name")
+  monthlyValue Decimal            @db.Decimal(10, 2) @map("monthly_value")
+  dueDay       Int                @map("due_day")
+  status       SubscriptionStatus @default(ACTIVE)
+  category     String
+  notes        String?
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("subscriptions")
+}
+
+model FinancialRecord {
+  id              String                @id @default(cuid())
+  userId          String                @map("user_id")
+  type            FinancialRecordType
+  personOrCompany String                @map("person_or_company")
+  amount          Decimal               @db.Decimal(10, 2)
+  date            DateTime
+  description     String
+  status          FinancialRecordStatus @default(PENDING)
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, type])
+  @@index([userId, status])
+  @@map("financial_records")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELED
+}
+
+enum FinancialRecordType {
+  RECEIVABLE
+  PAYABLE
+}
+
+enum FinancialRecordStatus {
+  PENDING
+  PAID
+  RECEIVED
+}

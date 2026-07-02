@@ -1,0 +1,44 @@
+export type SubscriptionStatus = "ACTIVE" | "PAUSED" | "CANCELED";
+export type FinancialRecordType = "RECEIVABLE" | "PAYABLE";
+export type FinancialRecordStatus = "PENDING" | "PAID" | "RECEIVED";
+
+export type SubscriptionDTO = {
+  id: string;
+  platformName: string;
+  monthlyValue: number;
+  dueDay: number;
+  status: SubscriptionStatus;
+  category: string;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FinancialRecordDTO = {
+  id: string;
+  type: FinancialRecordType;
+  personOrCompany: string;
+  amount: number;
+  date: string;
+  description: string;
+  status: FinancialRecordStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const subscriptionStatusLabel: Record<SubscriptionStatus, string> = {
+  ACTIVE: "Ativa",
+  PAUSED: "Pausada",
+  CANCELED: "Cancelada"
+};
+
+export const recordTypeLabel: Record<FinancialRecordType, string> = {
+  RECEIVABLE: "A receber",
+  PAYABLE: "A pagar"
+};
+
+export const recordStatusLabel: Record<FinancialRecordStatus, string> = {
+  PENDING: "Pendente",
+  PAID: "Pago",
+  RECEIVED: "Recebido"
+};
