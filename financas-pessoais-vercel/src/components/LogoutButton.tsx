@@ -15,7 +15,7 @@ export function LogoutButton() {
   }
 
   return (
-    <button className="btn btn-ghost" onClick={logout} disabled={loading}>
+    <button className="sidebar-logout" type="button" onClick={logout} disabled={loading}>
       {loading ? "Saindo..." : "Sair"}
     </button>
   );

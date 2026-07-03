@@ -49,37 +49,39 @@ export function PasswordForm() {
         </div>
       </div>
 
-      <form className="form profile-form" onSubmit={handleSubmit}>
-        {error ? <div className="alert">{error}</div> : null}
+      <form className="profile-form" onSubmit={handleSubmit}>
+        {error ? <div className="alert error">{error}</div> : null}
         {message ? <div className="alert success">{message}</div> : null}
 
-        <div className="field">
-          <label htmlFor="new-password">Nova senha</label>
-          <input
-            className="input"
-            id="new-password"
-            minLength={6}
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
+        <div className="profile-details profile-edit-list">
+          <div>
+            <label htmlFor="new-password">Nova senha</label>
+            <input
+              className="input"
+              id="new-password"
+              minLength={6}
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="confirm-password">Confirmar senha</label>
+            <input
+              className="input"
+              id="confirm-password"
+              minLength={6}
+              type="password"
+              value={confirmation}
+              onChange={(event) => setConfirmation(event.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        <div className="field">
-          <label htmlFor="confirm-password">Confirmar senha</label>
-          <input
-            className="input"
-            id="confirm-password"
-            minLength={6}
-            type="password"
-            value={confirmation}
-            onChange={(event) => setConfirmation(event.target.value)}
-            required
-          />
-        </div>
-
-        <div className="actions">
+        <div className="profile-form-actions">
           <button className="btn" disabled={saving} type="submit">
             {saving ? "Salvando..." : "Salvar senha"}
           </button>

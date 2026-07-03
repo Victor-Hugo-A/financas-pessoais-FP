@@ -58,7 +58,21 @@ export function AppShell({ children, user }: AppShellProps) {
         </div>
       </aside>
 
-      <section className="content">{children}</section>
+      <section className="main-area">
+        <div className="content">
+          <div className="content-main">{children}</div>
+        </div>
+        <footer className="app-footer">
+          <div>
+            <strong>Minhas Finanças</strong>
+            <span>Desenvolvido por Victor Hugo A.</span>
+          </div>
+          <p>
+            © {new Date().getFullYear()} Victor Hugo A. Todos os direitos reservados. Dados pessoais tratados conforme
+            princípios da LGPD.
+          </p>
+        </footer>
+      </section>
     </main>
   );
 }
