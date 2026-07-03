@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { LogoutButton } from "@/components/LogoutButton";
 import { NavLink } from "@/components/NavLink";
 
@@ -31,10 +32,7 @@ export function AppShell({ children, user }: AppShellProps) {
             <span />
           </button>
 
-          <div className="brand">
-            <strong>Minhas Finanças</strong>
-            <span>Controle pessoal e seguro.</span>
-          </div>
+          <BrandLogo className="brand brand-logo-light" />
         </div>
 
         <nav className="nav" aria-label="Menu principal">

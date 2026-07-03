@@ -696,38 +696,87 @@ tr:last-child td {
 }
 
 /* Split auth layout */
+.brand-logo {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo-mark {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  color: #0f766e;
+  background: #fff;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
+}
+
+.brand-logo-mark svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand-logo-text {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.brand-logo-text strong {
+  font-size: 19px;
+  line-height: 1.1;
+}
+
+.brand-logo-text small {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.brand-logo-light {
+  color: #fff;
+}
+
 .auth-page {
   min-height: 100vh;
   display: grid;
-  place-items: center;
-  padding: 32px;
-  background:
-    linear-gradient(135deg, rgba(15, 118, 110, 0.12) 0%, rgba(245, 247, 248, 0.96) 45%, rgba(37, 99, 235, 0.12) 100%),
-    #f5f7f8;
+  place-items: stretch;
+  padding: 0;
+  background: #fff;
 }
 
 .auth-shell {
-  width: min(1080px, 100%);
-  min-height: 680px;
+  width: 100%;
+  min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 520px);
   overflow: hidden;
   background: #fff;
-  border: 1px solid rgba(223, 231, 228, 0.9);
-  border-radius: 8px;
-  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.16);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .auth-visual {
-  min-height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 32px;
-  padding: 34px;
+  padding: 42px;
   color: #fff;
   background:
-    linear-gradient(90deg, rgba(7, 23, 43, 0.92) 0%, rgba(7, 23, 43, 0.76) 42%, rgba(7, 23, 43, 0.18) 100%),
+    linear-gradient(90deg, rgba(7, 23, 43, 0.88) 0%, rgba(7, 23, 43, 0.66) 44%, rgba(7, 23, 43, 0.14) 100%),
     url("/auth-finance-hero.png");
   background-position: center;
   background-size: cover;
@@ -740,19 +789,8 @@ tr:last-child td {
   font-weight: 900;
 }
 
-.auth-logo {
-  width: 44px;
-  height: 44px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 8px;
-  color: #0f766e;
-  background: #fff;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
-}
-
 .auth-visual-copy {
-  max-width: 430px;
+  max-width: 500px;
   display: grid;
   gap: 14px;
 }
@@ -772,7 +810,7 @@ tr:last-child td {
 
 .auth-visual h2 {
   margin: 0;
-  font-size: 48px;
+  font-size: 58px;
   line-height: 1;
   letter-spacing: 0;
 }
@@ -813,9 +851,10 @@ tr:last-child td {
 }
 
 .auth-panel {
+  min-height: 100vh;
   display: grid;
   align-content: center;
-  padding: 48px;
+  padding: 54px;
   background:
     linear-gradient(180deg, rgba(236, 253, 245, 0.54) 0%, rgba(255, 255, 255, 0) 44%),
     #fff;
@@ -893,8 +932,8 @@ tr:last-child td {
 
 @media (max-width: 820px) {
   .auth-page {
-    padding: 18px;
-    place-items: start center;
+    padding: 0;
+    place-items: stretch;
   }
 
   .auth-shell {
@@ -903,7 +942,7 @@ tr:last-child td {
   }
 
   .auth-visual {
-    min-height: 320px;
+    min-height: 420px;
     padding: 24px;
   }
 
@@ -913,6 +952,7 @@ tr:last-child td {
   }
 
   .auth-panel {
+    min-height: auto;
     padding: 30px 24px;
   }
 }
@@ -931,7 +971,7 @@ tr:last-child td {
   }
 
   .auth-visual {
-    min-height: 250px;
+    min-height: 320px;
     padding: 20px 18px;
   }
 

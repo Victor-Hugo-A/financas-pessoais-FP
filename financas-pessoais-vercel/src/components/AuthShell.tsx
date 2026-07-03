@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 type AuthShellProps = {
   mode: "login" | "register";
@@ -27,8 +28,7 @@ export function AuthShell({
       <section className="auth-shell" aria-label="Acesso ao Finanças Pessoais">
         <aside className="auth-visual" aria-label="Planejamento financeiro">
           <div className="auth-visual-top">
-            <span className="auth-logo">FP</span>
-            <span>Finanças Pessoais</span>
+            <BrandLogo className="brand-logo-light" />
           </div>
 
           <div className="auth-visual-copy">
