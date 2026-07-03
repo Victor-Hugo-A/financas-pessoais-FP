@@ -303,7 +303,7 @@ export default function SubscriptionsPage() {
           ) : items.length === 0 ? (
             <div className="empty-state">Nenhuma assinatura cadastrada.</div>
           ) : (
-            <table>
+            <table className="data-table subscriptions-table">
               <thead>
                 <tr>
                   <th>Plataforma</th>
@@ -333,9 +333,9 @@ export default function SubscriptionsPage() {
                       <Badge tone={item.status}>{subscriptionStatusLabel[item.status]}</Badge>
                     </td>
                     <td>{item.category}</td>
-                    <td>{item.notes || "-"}</td>
+                    <td>{item.notes || <span className="muted-cell">Não informado</span>}</td>
                     <td>
-                      <div className="actions">
+                      <div className="table-actions">
                         <button className="btn btn-secondary" onClick={() => startEdit(item)} type="button">
                           Editar
                         </button>

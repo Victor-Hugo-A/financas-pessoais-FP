@@ -46,7 +46,11 @@ model FinancialRecord {
   type            FinancialRecordType
   personOrCompany String                @map("person_or_company")
   amount          Decimal               @db.Decimal(10, 2)
-  date            DateTime
+  originalAmount  Decimal?              @db.Decimal(10, 2) @map("original_amount")
+  installmentCount Int?                 @map("installment_count")
+  installmentValue Decimal?             @db.Decimal(10, 2) @map("installment_value")
+  paidInstallments Int                  @default(0) @map("paid_installments")
+  date            DateTime?
   description     String
   status          FinancialRecordStatus @default(PENDING)
   createdAt       DateTime              @default(now()) @map("created_at")

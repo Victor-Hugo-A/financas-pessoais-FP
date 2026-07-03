@@ -1,1 +1,14 @@
 .idea/
+
+**/node_modules/
+**/.next/
+**/.vercel/
+
+**/.env
+**/.env.local
+**/.env.*.local
+
+**/*.log
+**/.DS_Store
+**/tsconfig.tsbuildinfo
+**/prisma/dev.db

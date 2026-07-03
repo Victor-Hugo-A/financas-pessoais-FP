@@ -32,6 +32,46 @@ export function readMoney(value: unknown, fieldName = "Valor") {
   return Number(amount.toFixed(2));
 }
 
+export function readOptionalMoney(value: unknown, fieldName = "Valor") {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  return readMoney(value, fieldName);
+}
+
+export function readPositiveInteger(value: unknown, fieldName: string) {
+  const number = Number(value);
+
+  if (!Number.isInteger(number) || number < 1) {
+    throw new Error(`${fieldName} precisa ser maior que zero.`);
+  }
+
+  return number;
+}
+
+export function readOptionalPositiveInteger(value: unknown, fieldName: string) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  return readPositiveInteger(value, fieldName);
+}
+
+export function readOptionalNonNegativeInteger(value: unknown, fieldName: string) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+
+  if (!Number.isInteger(number) || number < 0) {
+    throw new Error(`${fieldName} precisa ser zero ou maior.`);
+  }
+
+  return number;
+}
+
 export function readDueDay(value: unknown) {
   const dueDay = Number(value);
 
@@ -45,6 +85,20 @@ export function readDueDay(value: unknown) {
 export function readDate(value: unknown) {
   if (typeof value !== "string" || !value) {
     throw new Error("Data é obrigatória.");
+  }
+
+  const date = new Date(`${value}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Data inválida.");
+  }
+
+  return date;
+}
+
+export function readOptionalDate(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) {
+    return null;
   }
 
   const date = new Date(`${value}T00:00:00`);

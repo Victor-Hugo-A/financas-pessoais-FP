@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { badRequestResponse, notFoundResponse, serverErrorResponse, unauthorizedResponse } from "@/lib/http";
+import { readFinancialRecordInput } from "@/lib/financial-records";
 import { prisma } from "@/lib/prisma";
 import { serializeFinancialRecord } from "@/lib/serializers";
 import { getCurrentUserId } from "@/lib/session";
-import {
-  readDate,
-  readMoney,
-  readRequiredString,
-  toRecordStatus,
-  toRecordType
-} from "@/lib/validators";
 
 export const dynamic = "force-dynamic";
 
@@ -28,14 +22,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const body = await request.json();
     const record = await prisma.financialRecord.update({
       where: { id: params.id },
-      data: {
-        type: toRecordType(body.type),
-        personOrCompany: readRequiredString(body.personOrCompany, "Pessoa ou empresa"),
-        amount: readMoney(body.amount, "Valor"),
-        date: readDate(body.date),
-        description: readRequiredString(body.description, "Descrição"),
-        status: toRecordStatus(body.status)
-      }
+      data: readFinancialRecordInput(body)
     });
 
     return NextResponse.json({ record: serializeFinancialRecord(record) });

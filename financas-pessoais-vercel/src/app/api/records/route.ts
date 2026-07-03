@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { badRequestResponse, serverErrorResponse, unauthorizedResponse } from "@/lib/http";
+import { readFinancialRecordInput } from "@/lib/financial-records";
 import { prisma } from "@/lib/prisma";
 import { serializeFinancialRecord } from "@/lib/serializers";
 import { getCurrentUserId } from "@/lib/session";
-import {
-  readDate,
-  readMoney,
-  readRequiredString,
-  toRecordStatus,
-  toRecordType
-} from "@/lib/validators";
+import { toRecordStatus, toRecordType } from "@/lib/validators";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +24,7 @@ export async function GET(request: NextRequest) {
         ...(type && type !== "ALL" ? { type: toRecordType(type) } : {}),
         ...(status && status !== "ALL" ? { status: toRecordStatus(status) } : {})
       },
-      orderBy: [{ status: "asc" }, { date: "asc" }, { personOrCompany: "asc" }]
+      orderBy: [{ status: "asc" }, { date: { sort: "asc", nulls: "last" } }, { personOrCompany: "asc" }]
     });
 
     return NextResponse.json({ records: records.map(serializeFinancialRecord) });
@@ -45,22 +40,12 @@ export async function POST(request: NextRequest) {
     if (!userId) return unauthorizedResponse();
 
     const body = await request.json();
-    const type = toRecordType(body.type);
-    const personOrCompany = readRequiredString(body.personOrCompany, "Pessoa ou empresa");
-    const amount = readMoney(body.amount, "Valor");
-    const date = readDate(body.date);
-    const description = readRequiredString(body.description, "Descrição");
-    const status = toRecordStatus(body.status);
+    const data = readFinancialRecordInput(body);
 
     const record = await prisma.financialRecord.create({
       data: {
         userId,
-        type,
-        personOrCompany,
-        amount,
-        date,
-        description,
-        status
+        ...data
       }
     });
 

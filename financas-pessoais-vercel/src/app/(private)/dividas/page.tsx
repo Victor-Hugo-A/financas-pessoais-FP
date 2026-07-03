@@ -16,18 +16,26 @@ type RecordForm = {
   type: FinancialRecordType;
   personOrCompany: string;
   amount: string;
+  isInstallmentPlan: boolean;
+  originalAmount: string;
+  installmentCount: string;
+  installmentValue: string;
+  paidInstallments: string;
   date: string;
   description: string;
   status: FinancialRecordStatus;
 };
 
-const today = new Date().toISOString().slice(0, 10);
-
 const emptyForm: RecordForm = {
   type: "RECEIVABLE",
   personOrCompany: "",
   amount: "",
-  date: today,
+  isInstallmentPlan: false,
+  originalAmount: "",
+  installmentCount: "",
+  installmentValue: "",
+  paidInstallments: "0",
+  date: "",
   description: "",
   status: "PENDING"
 };
@@ -35,6 +43,7 @@ const emptyForm: RecordForm = {
 export default function RecordsPage() {
   const [items, setItems] = useState<FinancialRecordDTO[]>([]);
   const [form, setForm] = useState<RecordForm>(emptyForm);
+  const [amountReduction, setAmountReduction] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -81,8 +90,20 @@ export default function RecordsPage() {
     };
   }, [items]);
 
+  const suggestedInstallmentValue = useMemo(() => {
+    if (!form.isInstallmentPlan) return null;
+
+    const baseAmount = parseMoneyInput(form.originalAmount || form.amount);
+    const installments = parseIntegerInput(form.installmentCount);
+
+    if (!baseAmount || !installments) return null;
+
+    return Number((baseAmount / installments).toFixed(2));
+  }, [form.amount, form.installmentCount, form.isInstallmentPlan, form.originalAmount]);
+
   function resetForm() {
     setForm(emptyForm);
+    setAmountReduction("");
     setEditingId(null);
   }
 
@@ -92,11 +113,27 @@ export default function RecordsPage() {
       type: item.type,
       personOrCompany: item.personOrCompany,
       amount: String(item.amount),
+      isInstallmentPlan: Boolean(item.installmentCount),
+      originalAmount: item.originalAmount === null ? "" : String(item.originalAmount),
+      installmentCount: item.installmentCount === null ? "" : String(item.installmentCount),
+      installmentValue: item.installmentValue === null ? "" : String(item.installmentValue),
+      paidInstallments: String(item.paidInstallments),
       date: toDateInputValue(item.date),
       description: item.description,
       status: item.status
     });
+    setAmountReduction("");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function parseMoneyInput(value: string) {
+    const parsed = Number(value.replace(",", "."));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function parseIntegerInput(value: string) {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) ? parsed : null;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -105,10 +142,61 @@ export default function RecordsPage() {
     setError("");
     setMessage("");
 
+    const payload = {
+      ...form,
+      originalAmount: form.isInstallmentPlan ? form.originalAmount || form.amount : "",
+      installmentCount: form.isInstallmentPlan ? form.installmentCount : "",
+      installmentValue: form.isInstallmentPlan ? form.installmentValue : "",
+      paidInstallments: form.isInstallmentPlan ? form.paidInstallments || "0" : "0"
+    };
+
+    if (editingId && amountReduction.trim()) {
+      const currentAmount = parseMoneyInput(form.amount);
+      const reduction = parseMoneyInput(amountReduction);
+
+      if (currentAmount === null || reduction === null || reduction < 0) {
+        setSaving(false);
+        setError("Informe um valor de abatimento valido.");
+        return;
+      }
+
+      let nextAmount = Math.max(0, currentAmount - reduction);
+
+      if (form.isInstallmentPlan) {
+        const installmentCount = parseIntegerInput(form.installmentCount);
+        const currentPaidInstallments = parseIntegerInput(form.paidInstallments) ?? 0;
+        const originalAmount = parseMoneyInput(form.originalAmount || form.amount);
+        const installmentValue =
+          parseMoneyInput(form.installmentValue) ??
+          (originalAmount && installmentCount ? Number((originalAmount / installmentCount).toFixed(2)) : null);
+
+        if (installmentCount && installmentValue && installmentValue > 0) {
+          const paidByReduction = Math.floor((reduction + 0.00001) / installmentValue);
+          const nextPaidInstallments = Math.min(installmentCount, currentPaidInstallments + paidByReduction);
+
+          payload.paidInstallments = String(nextPaidInstallments);
+
+          if (nextPaidInstallments >= installmentCount) {
+            nextAmount = 0;
+          }
+        }
+      }
+
+      payload.amount = nextAmount.toFixed(2);
+
+      if (nextAmount === 0) {
+        if (form.isInstallmentPlan && form.installmentCount) {
+          payload.paidInstallments = form.installmentCount;
+        }
+
+        payload.status = form.type === "PAYABLE" ? "PAID" : "RECEIVED";
+      }
+    }
+
     const response = await fetch(editingId ? `/api/records/${editingId}` : "/api/records", {
       method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();
@@ -154,6 +242,44 @@ export default function RecordsPage() {
       return;
     }
 
+    await loadItems();
+  }
+
+  async function payInstallment(item: FinancialRecordDTO) {
+    if (!item.installmentCount || !item.installmentValue) {
+      setError("Este registro nao possui parcelas configuradas.");
+      return;
+    }
+
+    const nextPaidInstallments = Math.min(item.installmentCount, item.paidInstallments + 1);
+    const nextAmount =
+      nextPaidInstallments >= item.installmentCount
+        ? 0
+        : Math.max(0, Number((item.amount - item.installmentValue).toFixed(2)));
+    const status =
+      nextAmount === 0 ? (item.type === "PAYABLE" ? "PAID" : "RECEIVED") : item.status;
+
+    const response = await fetch(`/api/records/${item.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...item,
+        amount: nextAmount.toFixed(2),
+        paidInstallments: nextPaidInstallments,
+        date: toDateInputValue(item.date),
+        isInstallmentPlan: true,
+        status
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setError(data.message || "Erro ao abater parcela.");
+      return;
+    }
+
+    setMessage("Parcela abatida.");
     await loadItems();
   }
 
@@ -214,17 +340,102 @@ export default function RecordsPage() {
             </div>
 
             <div className="field">
-              <label>Valor</label>
+              <label>{form.isInstallmentPlan ? (editingId ? "Saldo atual" : "Valor total") : editingId ? "Valor atual" : "Valor"}</label>
               <input
                 className="input"
                 type="number"
                 min="0"
                 step="0.01"
                 value={form.amount}
-                onChange={(event) => setForm({ ...form, amount: event.target.value })}
+                onChange={(event) => {
+                  const amount = event.target.value;
+                  setForm({
+                    ...form,
+                    amount,
+                    originalAmount: !editingId && form.isInstallmentPlan ? amount : form.originalAmount
+                  });
+                }}
                 required
               />
             </div>
+
+            <div className="field full">
+              <label className="checkbox-field">
+                <input
+                  checked={form.isInstallmentPlan}
+                  type="checkbox"
+                  onChange={(event) => {
+                    const isInstallmentPlan = event.target.checked;
+                    setForm({
+                      ...form,
+                      isInstallmentPlan,
+                      originalAmount: isInstallmentPlan ? form.originalAmount || form.amount : "",
+                      installmentCount: isInstallmentPlan ? form.installmentCount : "",
+                      installmentValue: isInstallmentPlan ? form.installmentValue : "",
+                      paidInstallments: isInstallmentPlan ? form.paidInstallments || "0" : "0"
+                    });
+                  }}
+                />
+                Parcelado / empréstimo
+              </label>
+            </div>
+
+            {form.isInstallmentPlan ? (
+              <>
+                <div className="field">
+                  <label>Quantidade de parcelas</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min="1"
+                    value={form.installmentCount}
+                    onChange={(event) => setForm({ ...form, installmentCount: event.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="field">
+                  <label>Valor da parcela</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={form.installmentValue}
+                    onChange={(event) => setForm({ ...form, installmentValue: event.target.value })}
+                    placeholder={
+                      suggestedInstallmentValue ? `Ex.: ${formatCurrency(suggestedInstallmentValue)}` : "Calculado automaticamente"
+                    }
+                  />
+                </div>
+
+                <div className="field">
+                  <label>Parcelas pagas</label>
+                  <input
+                    className="input"
+                    type="number"
+                    min="0"
+                    max={form.installmentCount || undefined}
+                    value={form.paidInstallments}
+                    onChange={(event) => setForm({ ...form, paidInstallments: event.target.value })}
+                  />
+                </div>
+              </>
+            ) : null}
+
+            {editingId ? (
+              <div className="field">
+                <label>Abater valor</label>
+                <input
+                  className="input"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={amountReduction}
+                  onChange={(event) => setAmountReduction(event.target.value)}
+                />
+              </div>
+            ) : null}
 
             <div className="field">
               <label>Data</label>
@@ -233,7 +444,6 @@ export default function RecordsPage() {
                 type="date"
                 value={form.date}
                 onChange={(event) => setForm({ ...form, date: event.target.value })}
-                required
               />
             </div>
 
@@ -257,7 +467,6 @@ export default function RecordsPage() {
                 value={form.description}
                 onChange={(event) => setForm({ ...form, description: event.target.value })}
                 placeholder="Ex.: emprestei dinheiro, dividi compra, conta da internet..."
-                required
               />
             </div>
           </div>
@@ -274,18 +483,24 @@ export default function RecordsPage() {
         <div className="section-header">
           <h2>Registros financeiros</h2>
           <div className="toolbar">
-            <select className="select" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
-              <option value="ALL">Todos os tipos</option>
-              <option value="RECEIVABLE">A receber</option>
-              <option value="PAYABLE">A pagar</option>
-            </select>
+            <label className="filter-control">
+              <span>Tipo</span>
+              <select className="select" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
+                <option value="ALL">Todos os tipos</option>
+                <option value="RECEIVABLE">A receber</option>
+                <option value="PAYABLE">A pagar</option>
+              </select>
+            </label>
 
-            <select className="select" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-              <option value="ALL">Todos os status</option>
-              <option value="PENDING">Pendentes</option>
-              <option value="PAID">Pagos</option>
-              <option value="RECEIVED">Recebidos</option>
-            </select>
+            <label className="filter-control">
+              <span>Status</span>
+              <select className="select" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+                <option value="ALL">Todos os status</option>
+                <option value="PENDING">Pendentes</option>
+                <option value="PAID">Pagos</option>
+                <option value="RECEIVED">Recebidos</option>
+              </select>
+            </label>
           </div>
         </div>
 
@@ -295,14 +510,16 @@ export default function RecordsPage() {
           ) : items.length === 0 ? (
             <div className="empty-state">Nenhum registro cadastrado.</div>
           ) : (
-            <table>
+            <table className="data-table records-table">
               <thead>
                 <tr>
                   <th>Tipo</th>
                   <th>Pessoa/empresa</th>
-                  <th>Valor</th>
+                  <th>Saldo</th>
                   <th>Data</th>
                   <th>Status</th>
+                  <th>Parcelas</th>
+                  <th>Parcela</th>
                   <th>Descrição</th>
                   <th>Ações</th>
                 </tr>
@@ -312,25 +529,64 @@ export default function RecordsPage() {
                   <tr key={item.id}>
                     <td>{recordTypeLabel[item.type]}</td>
                     <td>{item.personOrCompany}</td>
-                    <td>{formatCurrency(item.amount)}</td>
+                    <td>
+                      <div className="cell-stack">
+                        <strong>{formatCurrency(item.amount)}</strong>
+                        {item.originalAmount ? <span>Original {formatCurrency(item.originalAmount)}</span> : null}
+                      </div>
+                    </td>
                     <td>{formatDateBR(item.date)}</td>
                     <td>
                       <Badge tone={item.status}>{recordStatusLabel[item.status]}</Badge>
                     </td>
-                    <td>{item.description}</td>
                     <td>
-                      <div className="actions">
+                      {item.installmentCount ? (
+                        `${item.paidInstallments}/${item.installmentCount}`
+                      ) : (
+                        <span className="muted-cell">Não parcelado</span>
+                      )}
+                    </td>
+                    <td>
+                      {item.installmentValue ? (
+                        formatCurrency(item.installmentValue)
+                      ) : (
+                        <span className="muted-cell">Não informado</span>
+                      )}
+                    </td>
+                    <td>{item.description || <span className="muted-cell">Não informado</span>}</td>
+                    <td>
+                      <div className="table-actions">
                         <button className="btn btn-secondary" onClick={() => startEdit(item)} type="button">
                           Editar
                         </button>
+                        {item.status === "PENDING" && item.installmentCount && item.installmentValue ? (
+                          <button
+                            className="btn btn-ghost"
+                            onClick={() => payInstallment(item)}
+                            title="Abater uma parcela"
+                            type="button"
+                          >
+                            Abater
+                          </button>
+                        ) : null}
                         {item.status !== "PAID" && item.type === "PAYABLE" ? (
-                          <button className="btn btn-ghost" onClick={() => updateStatus(item, "PAID")} type="button">
-                            Marcar pago
+                          <button
+                            className="btn btn-ghost"
+                            onClick={() => updateStatus(item, "PAID")}
+                            title="Marcar como pago"
+                            type="button"
+                          >
+                            Quitar
                           </button>
                         ) : null}
                         {item.status !== "RECEIVED" && item.type === "RECEIVABLE" ? (
-                          <button className="btn btn-ghost" onClick={() => updateStatus(item, "RECEIVED")} type="button">
-                            Marcar recebido
+                          <button
+                            className="btn btn-ghost"
+                            onClick={() => updateStatus(item, "RECEIVED")}
+                            title="Marcar como recebido"
+                            type="button"
+                          >
+                            Receber
                           </button>
                         ) : null}
                         {item.status !== "PENDING" ? (

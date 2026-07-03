@@ -110,7 +110,7 @@ export default function DashboardPage() {
           {data.upcomingDueDates.length === 0 ? (
             <div className="empty-state">Nenhuma assinatura ativa cadastrada.</div>
           ) : (
-            <table>
+            <table className="data-table dashboard-table">
               <thead>
                 <tr>
                   <th>Plataforma</th>

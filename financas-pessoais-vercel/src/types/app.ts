@@ -19,7 +19,11 @@ export type FinancialRecordDTO = {
   type: FinancialRecordType;
   personOrCompany: string;
   amount: number;
-  date: string;
+  originalAmount: number | null;
+  installmentCount: number | null;
+  installmentValue: number | null;
+  paidInstallments: number;
+  date: string | null;
   description: string;
   status: FinancialRecordStatus;
   createdAt: string;

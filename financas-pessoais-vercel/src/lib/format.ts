@@ -5,7 +5,9 @@ export function formatCurrency(value: number) {
   }).format(value || 0);
 }
 
-export function formatDateBR(date: string | Date) {
+export function formatDateBR(date: string | Date | null) {
+  if (!date) return "-";
+
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "2-digit",
@@ -13,7 +15,9 @@ export function formatDateBR(date: string | Date) {
   }).format(new Date(date));
 }
 
-export function toDateInputValue(date: string | Date) {
+export function toDateInputValue(date: string | Date | null) {
+  if (!date) return "";
+
   const parsed = new Date(date);
   const year = parsed.getFullYear();
   const month = String(parsed.getMonth() + 1).padStart(2, "0");
