@@ -28,7 +28,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (!response.ok) {
-      setError(data.message || "Não foi possível entrar.");
+      setError(data.message || "Não foi possível acessar sua conta. Verifique os dados e tente novamente.");
       return;
     }
 
@@ -40,22 +40,23 @@ export default function LoginPage() {
   return (
     <AuthShell
       mode="login"
-      title="Entrar"
-      description="Acesse seu painel financeiro pessoal."
-      alternateText="Ainda não tem conta?"
+      title="Acessar sua conta"
+      description="Entre com seus dados para continuar no painel Minhas Finanças."
+      alternateText="Ainda não possui acesso?"
       alternateHref="/register"
-      alternateLabel="Criar cadastro"
+      alternateLabel="Criar uma conta"
     >
       <form className="form auth-form" onSubmit={handleSubmit}>
         {error ? <TimedAlert message={error} variant="error" onDismiss={() => setError("")} /> : null}
 
         <div className="field">
-          <label htmlFor="email">E-mail</label>
+          <label htmlFor="email">E-mail cadastrado</label>
           <input
             className="input"
             id="email"
             type="email"
             autoComplete="email"
+            placeholder="voce@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
@@ -63,12 +64,13 @@ export default function LoginPage() {
         </div>
 
         <div className="field">
-          <label htmlFor="password">Senha</label>
+          <label htmlFor="password">Senha de acesso</label>
           <input
             className="input"
             id="password"
             type="password"
             autoComplete="current-password"
+            placeholder="Digite sua senha"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
@@ -76,8 +78,10 @@ export default function LoginPage() {
         </div>
 
         <button className="btn" disabled={loading} type="submit">
-          {loading ? "Entrando..." : "Entrar"}
+          {loading ? "Validando acesso..." : "Acessar painel"}
         </button>
+
+        <p className="auth-note">Acesso protegido para suas informações financeiras.</p>
       </form>
     </AuthShell>
   );

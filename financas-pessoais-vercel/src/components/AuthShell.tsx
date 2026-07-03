@@ -26,30 +26,30 @@ export function AuthShell({
 
   return (
     <main className="auth-page">
-      <section className="auth-shell" aria-label="Acesso ao Finanças Pessoais">
+      <section className="auth-shell" aria-label="Acesso ao Minhas Finanças">
         <aside className="auth-visual" aria-label="Planejamento financeiro">
           <div className="auth-visual-top">
             <BrandLogo className="brand-logo-light" />
           </div>
 
           <div className="auth-visual-copy">
-            <span className="auth-eyebrow">Controle financeiro</span>
-            <h2>Veja seus números com mais clareza.</h2>
-            <p>Organize assinaturas, dívidas e valores a receber em um painel simples.</p>
+            <span className="auth-eyebrow">Gestão financeira pessoal</span>
+            <h2>Controle suas finanças com clareza.</h2>
+            <p>Acompanhe assinaturas, dívidas e valores pendentes em um painel objetivo e seguro.</p>
           </div>
 
           <div className="auth-metrics" aria-label="Destaques financeiros">
             <span>
-              <strong>30 dias</strong>
-              <small>visão do mês</small>
+              <strong>Mês</strong>
+              <small>visão atual</small>
             </span>
             <span>
-              <strong>R$</strong>
-              <small>controle total</small>
+              <strong>Saldo</strong>
+              <small>a pagar e receber</small>
             </span>
             <span>
-              <strong>24h</strong>
-              <small>acesso rápido</small>
+              <strong>Privado</strong>
+              <small>acesso pessoal</small>
             </span>
           </div>
         </aside>
@@ -72,7 +72,7 @@ export function AuthShell({
             </nav>
           </div>
 
-          <FlashMessageOutlet className="flash-outlet" />
+          <FlashMessageOutlet />
 
           {children}
 

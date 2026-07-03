@@ -5,11 +5,7 @@ import { consumeFlashMessage } from "@/lib/flash";
 import type { FlashMessage } from "@/lib/flash";
 import { TimedAlert } from "@/components/TimedAlert";
 
-type FlashMessageOutletProps = {
-  className?: string;
-};
-
-export function FlashMessageOutlet({ className = "" }: FlashMessageOutletProps) {
+export function FlashMessageOutlet() {
   const [flash, setFlash] = useState<FlashMessage | null>(null);
 
   useEffect(() => {
@@ -20,7 +16,6 @@ export function FlashMessageOutlet({ className = "" }: FlashMessageOutletProps) 
 
   return (
     <TimedAlert
-      className={className}
       durationMs={flash.durationMs}
       message={flash.message}
       onDismiss={() => setFlash(null)}

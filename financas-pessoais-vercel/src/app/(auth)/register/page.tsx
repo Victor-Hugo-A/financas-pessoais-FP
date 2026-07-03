@@ -41,11 +41,11 @@ export default function RegisterPage() {
   return (
     <AuthShell
       mode="register"
-      title="Criar conta"
-      description="Cadastre-se para organizar suas assinaturas, dívidas e valores a receber."
+      title="Criar sua conta"
+      description="Cadastre seus dados para começar a organizar suas informações financeiras."
       alternateText="Já tem conta?"
       alternateHref="/login"
-      alternateLabel="Entrar"
+      alternateLabel="Acessar conta"
     >
       <form className="form auth-form" onSubmit={handleSubmit}>
         {error ? <TimedAlert message={error} variant="error" onDismiss={() => setError("")} /> : null}

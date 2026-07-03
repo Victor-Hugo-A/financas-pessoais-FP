@@ -61,7 +61,7 @@ export function AppShell({ children, user }: AppShellProps) {
 
       <section className="main-area">
         <div className="content">
-          <FlashMessageOutlet className="flash-outlet" />
+          <FlashMessageOutlet />
           <div className="content-main">{children}</div>
         </div>
         <footer className="app-footer">
