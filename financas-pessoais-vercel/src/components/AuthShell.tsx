@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { FlashMessageOutlet } from "@/components/FlashMessageOutlet";
 
 type AuthShellProps = {
   mode: "login" | "register";
@@ -70,6 +71,8 @@ export function AuthShell({
               </Link>
             </nav>
           </div>
+
+          <FlashMessageOutlet className="flash-outlet" />
 
           {children}
 

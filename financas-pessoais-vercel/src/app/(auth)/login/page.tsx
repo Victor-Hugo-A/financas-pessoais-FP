@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
+import { TimedAlert } from "@/components/TimedAlert";
+import { setFlashMessage } from "@/lib/flash";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,6 +32,7 @@ export default function LoginPage() {
       return;
     }
 
+    setFlashMessage({ type: "success", message: "Login realizado com sucesso." });
     router.push("/dashboard");
     router.refresh();
   }
@@ -44,7 +47,7 @@ export default function LoginPage() {
       alternateLabel="Criar cadastro"
     >
       <form className="form auth-form" onSubmit={handleSubmit}>
-        {error ? <div className="alert">{error}</div> : null}
+        {error ? <TimedAlert message={error} variant="error" onDismiss={() => setError("")} /> : null}
 
         <div className="field">
           <label htmlFor="email">E-mail</label>

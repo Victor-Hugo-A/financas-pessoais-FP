@@ -1,5 +1,6 @@
 "use client";
 
+import { TimedAlert } from "@/components/TimedAlert";
 import { FormEvent, useState } from "react";
 
 export function PasswordForm() {
@@ -50,8 +51,8 @@ export function PasswordForm() {
       </div>
 
       <form className="profile-form" onSubmit={handleSubmit}>
-        {error ? <div className="alert error">{error}</div> : null}
-        {message ? <div className="alert success">{message}</div> : null}
+        {error ? <TimedAlert message={error} variant="error" onDismiss={() => setError("")} /> : null}
+        {message ? <TimedAlert message={message} variant="success" onDismiss={() => setMessage("")} /> : null}
 
         <div className="profile-details profile-edit-list">
           <div>

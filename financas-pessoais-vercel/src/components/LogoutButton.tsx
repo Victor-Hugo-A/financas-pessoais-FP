@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { setFlashMessage } from "@/lib/flash";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -10,6 +11,7 @@ export function LogoutButton() {
   async function logout() {
     setLoading(true);
     await fetch("/api/auth/logout", { method: "POST" });
+    setFlashMessage({ type: "success", message: "Você saiu da sua conta." });
     router.push("/login");
     router.refresh();
   }

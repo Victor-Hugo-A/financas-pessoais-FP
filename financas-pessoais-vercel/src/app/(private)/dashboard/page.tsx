@@ -2,6 +2,7 @@
 
 import { SummaryCard } from "@/components/SummaryCard";
 import { SubscriptionLogo } from "@/components/SubscriptionLogo";
+import { TimedAlert } from "@/components/TimedAlert";
 import { formatCurrency, formatDateBR } from "@/lib/format";
 import { useEffect, useState } from "react";
 
@@ -50,7 +51,7 @@ export default function DashboardPage() {
   }
 
   if (error) {
-    return <div className="alert">{error}</div>;
+    return <TimedAlert message={error} variant="error" onDismiss={() => setError("")} />;
   }
 
   if (!data) return null;

@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
+import { TimedAlert } from "@/components/TimedAlert";
+import { setFlashMessage } from "@/lib/flash";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -31,6 +33,7 @@ export default function RegisterPage() {
       return;
     }
 
+    setFlashMessage({ type: "success", message: "Cadastro criado com sucesso." });
     router.push("/dashboard");
     router.refresh();
   }
@@ -45,7 +48,7 @@ export default function RegisterPage() {
       alternateLabel="Entrar"
     >
       <form className="form auth-form" onSubmit={handleSubmit}>
-        {error ? <div className="alert">{error}</div> : null}
+        {error ? <TimedAlert message={error} variant="error" onDismiss={() => setError("")} /> : null}
 
         <div className="field">
           <label htmlFor="name">Nome</label>

@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/Badge";
 import { SummaryCard } from "@/components/SummaryCard";
+import { TimedAlert } from "@/components/TimedAlert";
 import { formatCurrency, formatDateBR, toDateInputValue } from "@/lib/format";
 import {
   FinancialRecordDTO,
@@ -313,8 +314,8 @@ export default function RecordsPage() {
             ) : null}
           </div>
 
-          {error ? <div className="alert">{error}</div> : null}
-          {message ? <div className="alert success">{message}</div> : null}
+          {error ? <TimedAlert message={error} variant="error" onDismiss={() => setError("")} /> : null}
+          {message ? <TimedAlert message={message} variant="success" onDismiss={() => setMessage("")} /> : null}
 
           <div className="form-grid">
             <div className="field">

@@ -3,6 +3,7 @@
 import { Badge } from "@/components/Badge";
 import { SummaryCard } from "@/components/SummaryCard";
 import { SubscriptionLogo } from "@/components/SubscriptionLogo";
+import { TimedAlert } from "@/components/TimedAlert";
 import { formatCurrency } from "@/lib/format";
 import { SubscriptionDTO, SubscriptionStatus, subscriptionStatusLabel } from "@/types/app";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -178,8 +179,8 @@ export default function SubscriptionsPage() {
             ) : null}
           </div>
 
-          {error ? <div className="alert">{error}</div> : null}
-          {message ? <div className="alert success">{message}</div> : null}
+          {error ? <TimedAlert message={error} variant="error" onDismiss={() => setError("")} /> : null}
+          {message ? <TimedAlert message={message} variant="success" onDismiss={() => setMessage("")} /> : null}
 
           <div className="form-grid">
             <div className="field">

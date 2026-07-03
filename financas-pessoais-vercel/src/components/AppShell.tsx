@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { FlashMessageOutlet } from "@/components/FlashMessageOutlet";
 import { LogoutButton } from "@/components/LogoutButton";
 import { NavLink } from "@/components/NavLink";
 
@@ -60,6 +61,7 @@ export function AppShell({ children, user }: AppShellProps) {
 
       <section className="main-area">
         <div className="content">
+          <FlashMessageOutlet className="flash-outlet" />
           <div className="content-main">{children}</div>
         </div>
         <footer className="app-footer">
