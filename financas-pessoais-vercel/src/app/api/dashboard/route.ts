@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { getDemoDashboard, isDemoMode } from "@/lib/demo";
 import { serverErrorResponse, unauthorizedResponse } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/lib/session";
+
+export const dynamic = "force-dynamic";
 
 function getNextDueDate(dueDay: number) {
   const today = new Date();
@@ -25,10 +26,6 @@ function getNextDueDate(dueDay: number) {
 
 export async function GET() {
   try {
-    if (isDemoMode()) {
-      return NextResponse.json(getDemoDashboard());
-    }
-
     const userId = await getCurrentUserId();
 
     if (!userId) return unauthorizedResponse();

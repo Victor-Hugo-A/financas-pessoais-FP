@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { AuthShell } from "@/components/AuthShell";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -36,63 +36,61 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-card">
-        <h1>Criar conta</h1>
-        <p>Cadastre-se para organizar suas assinaturas, dívidas e valores a receber.</p>
+    <AuthShell
+      mode="register"
+      title="Criar conta"
+      description="Cadastre-se para organizar suas assinaturas, dívidas e valores a receber."
+      alternateText="Já tem conta?"
+      alternateHref="/login"
+      alternateLabel="Entrar"
+    >
+      <form className="form auth-form" onSubmit={handleSubmit}>
+        {error ? <div className="alert">{error}</div> : null}
 
-        <form className="form" onSubmit={handleSubmit}>
-          {error ? <div className="alert">{error}</div> : null}
-
-          <div className="field">
-            <label htmlFor="name">Nome</label>
-            <input
-              className="input"
-              id="name"
-              type="text"
-              autoComplete="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="email">E-mail</label>
-            <input
-              className="input"
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="password">Senha</label>
-            <input
-              className="input"
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              minLength={6}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </div>
-
-          <button className="btn" disabled={loading} type="submit">
-            {loading ? "Criando..." : "Criar conta"}
-          </button>
-        </form>
-
-        <div className="auth-link">
-          Já tem conta? <Link href="/login">Entrar</Link>
+        <div className="field">
+          <label htmlFor="name">Nome</label>
+          <input
+            className="input"
+            id="name"
+            type="text"
+            autoComplete="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+          />
         </div>
-      </section>
-    </main>
+
+        <div className="field">
+          <label htmlFor="email">E-mail</label>
+          <input
+            className="input"
+            id="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="password">Senha</label>
+          <input
+            className="input"
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={6}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+          />
+        </div>
+
+        <button className="btn" disabled={loading} type="submit">
+          {loading ? "Criando..." : "Criar conta"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  createDemoRecord,
-  isDemoMode,
-  listDemoRecords
-} from "@/lib/demo";
 import { badRequestResponse, serverErrorResponse, unauthorizedResponse } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { serializeFinancialRecord } from "@/lib/serializers";
@@ -16,15 +11,13 @@ import {
   toRecordType
 } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const status = searchParams.get("status");
-
-    if (isDemoMode()) {
-      return NextResponse.json({ records: listDemoRecords(type, status) });
-    }
 
     const userId = await getCurrentUserId();
 
@@ -47,11 +40,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (isDemoMode()) {
-      const body = await request.json();
-      return NextResponse.json({ record: createDemoRecord(body) }, { status: 201 });
-    }
-
     const userId = await getCurrentUserId();
 
     if (!userId) return unauthorizedResponse();

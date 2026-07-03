@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  createDemoSubscription,
-  isDemoMode,
-  listDemoSubscriptions
-} from "@/lib/demo";
 import { badRequestResponse, serverErrorResponse, unauthorizedResponse } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { serializeSubscription } from "@/lib/serializers";
@@ -16,15 +11,13 @@ import {
   toSubscriptionStatus
 } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const category = searchParams.get("category");
-
-    if (isDemoMode()) {
-      return NextResponse.json({ subscriptions: listDemoSubscriptions(status, category) });
-    }
 
     const userId = await getCurrentUserId();
 
@@ -47,11 +40,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (isDemoMode()) {
-      const body = await request.json();
-      return NextResponse.json({ subscription: createDemoSubscription(body) }, { status: 201 });
-    }
-
     const userId = await getCurrentUserId();
 
     if (!userId) return unauthorizedResponse();

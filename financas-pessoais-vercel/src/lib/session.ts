@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { demoUser, isDemoMode } from "@/lib/demo";
 import { prisma } from "@/lib/prisma";
 import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/jwt";
 
@@ -12,8 +11,6 @@ export async function getCurrentSession() {
 }
 
 export async function getCurrentUserId() {
-  if (isDemoMode()) return demoUser.id;
-
   const session = await getCurrentSession();
   return session?.sub ?? null;
 }
@@ -29,8 +26,6 @@ export async function requireUserId() {
 }
 
 export async function getCurrentUser() {
-  if (isDemoMode()) return demoUser;
-
   const userId = await getCurrentUserId();
 
   if (!userId) return null;

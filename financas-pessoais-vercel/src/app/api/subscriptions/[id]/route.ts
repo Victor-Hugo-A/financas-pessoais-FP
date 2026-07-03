@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  deleteDemoSubscription,
-  isDemoMode,
-  updateDemoSubscription
-} from "@/lib/demo";
 import { badRequestResponse, notFoundResponse, serverErrorResponse, unauthorizedResponse } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { serializeSubscription } from "@/lib/serializers";
@@ -16,17 +11,10 @@ import {
   toSubscriptionStatus
 } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    if (isDemoMode()) {
-      const body = await request.json();
-      const subscription = updateDemoSubscription(params.id, body);
-
-      if (!subscription) return notFoundResponse();
-
-      return NextResponse.json({ subscription });
-    }
-
     const userId = await getCurrentUserId();
 
     if (!userId) return unauthorizedResponse();
@@ -62,11 +50,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    if (isDemoMode()) {
-      if (!deleteDemoSubscription(params.id)) return notFoundResponse();
-      return NextResponse.json({ ok: true });
-    }
-
     const userId = await getCurrentUserId();
 
     if (!userId) return unauthorizedResponse();

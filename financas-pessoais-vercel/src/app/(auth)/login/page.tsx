@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { AuthShell } from "@/components/AuthShell";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,49 +35,47 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-card">
-        <h1>Entrar</h1>
-        <p>Acesse seu painel financeiro pessoal.</p>
+    <AuthShell
+      mode="login"
+      title="Entrar"
+      description="Acesse seu painel financeiro pessoal."
+      alternateText="Ainda não tem conta?"
+      alternateHref="/register"
+      alternateLabel="Criar cadastro"
+    >
+      <form className="form auth-form" onSubmit={handleSubmit}>
+        {error ? <div className="alert">{error}</div> : null}
 
-        <form className="form" onSubmit={handleSubmit}>
-          {error ? <div className="alert">{error}</div> : null}
-
-          <div className="field">
-            <label htmlFor="email">E-mail</label>
-            <input
-              className="input"
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="password">Senha</label>
-            <input
-              className="input"
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </div>
-
-          <button className="btn" disabled={loading} type="submit">
-            {loading ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
-
-        <div className="auth-link">
-          Ainda não tem conta? <Link href="/register">Criar cadastro</Link>
+        <div className="field">
+          <label htmlFor="email">E-mail</label>
+          <input
+            className="input"
+            id="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
         </div>
-      </section>
-    </main>
+
+        <div className="field">
+          <label htmlFor="password">Senha</label>
+          <input
+            className="input"
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+          />
+        </div>
+
+        <button className="btn" disabled={loading} type="submit">
+          {loading ? "Entrando..." : "Entrar"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }
