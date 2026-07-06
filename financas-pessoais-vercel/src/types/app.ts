@@ -18,6 +18,7 @@ export type SubscriptionDTO = {
 export type FinancialRecordDTO = {
   id: string;
   type: FinancialRecordType;
+  kind: FinancialRecordKind;
   personOrCompany: string;
   amount: number;
   originalAmount: number | null;
@@ -25,13 +26,12 @@ export type FinancialRecordDTO = {
   installmentValue: number | null;
   paidInstallments: number;
   date: string | null;
+  firstDueDate: string | null;
+  paymentMethod: string | null;
   description: string;
   status: FinancialRecordStatus;
   createdAt: string;
   updatedAt: string;
-  kind: FinancialRecordKind;
-  paymentMethod: string | null;
-  firstDueDate: string | null;
 };
 
 export const recordKindLabel: Record<FinancialRecordKind, string> = {

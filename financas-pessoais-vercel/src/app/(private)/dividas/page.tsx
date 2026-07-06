@@ -116,19 +116,25 @@ export default function RecordsPage() {
 
   function startEdit(item: FinancialRecordDTO) {
     setEditingId(item.id);
+
+    const kind = item.kind ?? (item.installmentCount ? "INSTALLMENT" : "SIMPLE");
+
     setForm({
       type: item.type,
+      kind,
       personOrCompany: item.personOrCompany,
       amount: String(item.amount),
-      isInstallmentPlan: Boolean(item.installmentCount),
       originalAmount: item.originalAmount === null ? "" : String(item.originalAmount),
       installmentCount: item.installmentCount === null ? "" : String(item.installmentCount),
       installmentValue: item.installmentValue === null ? "" : String(item.installmentValue),
       paidInstallments: String(item.paidInstallments),
       date: toDateInputValue(item.date),
+      firstDueDate: toDateInputValue(item.firstDueDate ?? item.date),
+      paymentMethod: item.paymentMethod ?? "",
       description: item.description,
       status: item.status
     });
+
     setAmountReduction("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
