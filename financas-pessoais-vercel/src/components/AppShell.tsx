@@ -46,6 +46,9 @@ export function AppShell({ children, user }: AppShellProps) {
           <NavLink href="/dividas" icon="records">
             Dívidas e valores
           </NavLink>
+          <NavLink href="/controle-mensal" icon="monthly">
+            Controle mensal
+          </NavLink>
           <NavLink href="/perfil" icon="profile">
             Perfil
           </NavLink>

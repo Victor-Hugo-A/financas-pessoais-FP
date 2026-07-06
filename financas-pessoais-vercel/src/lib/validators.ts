@@ -139,3 +139,13 @@ export function toRecordStatus(value: unknown) {
 
   return status as "PENDING" | "PAID" | "RECEIVED";
 }
+
+export function toRecordKind(value: unknown) {
+  const kind = String(value || "SIMPLE").toUpperCase();
+
+  if (!["SIMPLE", "INSTALLMENT", "LOAN"].includes(kind)) {
+    throw new Error("Tipo de dívida inválido.");
+  }
+
+  return kind as "SIMPLE" | "INSTALLMENT" | "LOAN";
+}

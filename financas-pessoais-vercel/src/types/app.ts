@@ -1,6 +1,7 @@
 export type SubscriptionStatus = "ACTIVE" | "PAUSED" | "CANCELED";
 export type FinancialRecordType = "RECEIVABLE" | "PAYABLE";
 export type FinancialRecordStatus = "PENDING" | "PAID" | "RECEIVED";
+export type FinancialRecordKind = "SIMPLE" | "INSTALLMENT" | "LOAN";
 
 export type SubscriptionDTO = {
   id: string;
@@ -28,6 +29,15 @@ export type FinancialRecordDTO = {
   status: FinancialRecordStatus;
   createdAt: string;
   updatedAt: string;
+  kind: FinancialRecordKind;
+  paymentMethod: string | null;
+  firstDueDate: string | null;
+};
+
+export const recordKindLabel: Record<FinancialRecordKind, string> = {
+  SIMPLE: "Dívida simples",
+  INSTALLMENT: "Compra parcelada",
+  LOAN: "Empréstimo"
 };
 
 export const subscriptionStatusLabel: Record<SubscriptionStatus, string> = {

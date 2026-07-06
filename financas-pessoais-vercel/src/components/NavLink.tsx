@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type NavIcon = "dashboard" | "subscriptions" | "records" | "profile";
+type NavIcon = "dashboard" | "subscriptions" | "records" | "monthly" | "profile";
 
 function MenuIcon({ name }: { name: NavIcon }) {
   if (name === "dashboard") {
@@ -38,6 +38,19 @@ function MenuIcon({ name }: { name: NavIcon }) {
       </svg>
     );
   }
+
+    if (name === "monthly") {
+        return (
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4.5 7.5h15" />
+                <path d="M5.5 5h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+                <path d="M7.5 12h4" />
+                <path d="M7.5 15.5h2.5" />
+                <path d="M15 13h3" />
+                <path d="M16.5 11.5v3" />
+            </svg>
+        );
+    }
 
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

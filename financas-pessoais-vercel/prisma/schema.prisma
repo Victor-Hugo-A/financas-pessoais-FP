@@ -17,6 +17,7 @@ model User {
   updatedAt    DateTime          @updatedAt @map("updated_at")
   subscriptions Subscription[]
   records       FinancialRecord[]
+  monthlyIncomes MonthlyIncome[]
 
   @@map("users")
 }
@@ -55,6 +56,9 @@ model FinancialRecord {
   status          FinancialRecordStatus @default(PENDING)
   createdAt       DateTime              @default(now()) @map("created_at")
   updatedAt       DateTime              @updatedAt @map("updated_at")
+  kind            FinancialRecordKind   @default(SIMPLE)
+  paymentMethod   String?               @map("payment_method")
+  firstDueDate    DateTime?             @map("first_due_date")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -62,6 +66,21 @@ model FinancialRecord {
   @@index([userId, type])
   @@index([userId, status])
   @@map("financial_records")
+}
+
+model MonthlyIncome {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  month     String
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month])
+  @@index([userId])
+  @@map("monthly_incomes")
 }
 
 enum SubscriptionStatus {
@@ -79,4 +98,10 @@ enum FinancialRecordStatus {
   PENDING
   PAID
   RECEIVED
+}
+
+enum FinancialRecordKind {
+  SIMPLE
+  INSTALLMENT
+  LOAN
 }

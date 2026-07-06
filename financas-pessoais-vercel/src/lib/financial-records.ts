@@ -7,7 +7,8 @@ import {
   readOptionalString,
   readRequiredString,
   toRecordStatus,
-  toRecordType
+  toRecordType,
+  toRecordKind
 } from "@/lib/validators";
 
 function hasValue(value: unknown) {
@@ -21,12 +22,15 @@ export function readFinancialRecordInput(body: Record<string, unknown>) {
   const date = readOptionalDate(body.date);
   const description = readOptionalString(body.description) ?? "Não informado";
   const status = toRecordStatus(body.status);
+  const kind = toRecordKind(body.kind);
+  const paymentMethod = readOptionalString(body.paymentMethod);
+  const firstDueDate = readOptionalDate(body.firstDueDate);
 
   const explicitInstallmentChoice =
     typeof body.isInstallmentPlan === "boolean" ? body.isInstallmentPlan : null;
   const hasInstallmentFields =
     hasValue(body.originalAmount) || hasValue(body.installmentCount) || hasValue(body.installmentValue);
-  const isInstallmentPlan = explicitInstallmentChoice ?? hasInstallmentFields;
+  const isInstallmentPlan = kind === "INSTALLMENT" || kind === "LOAN";
 
   if (!isInstallmentPlan) {
     return {
@@ -77,6 +81,9 @@ export function readFinancialRecordInput(body: Record<string, unknown>) {
     paidInstallments,
     date,
     description,
-    status
+    status,
+    kind,
+    paymentMethod,
+    firstDueDate
   };
 }

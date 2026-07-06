@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/jwt";
 
-const privateRoutes = ["/dashboard", "/assinaturas", "/dividas", "/perfil"];
+const privateRoutes = ["/dashboard", "/assinaturas", "/dividas", "/controle-mensal", "/perfil"];
 const authRoutes = ["/login", "/register"];
 
 export async function middleware(request: NextRequest) {
@@ -25,5 +25,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/assinaturas/:path*", "/dividas/:path*", "/perfil/:path*", "/login", "/register"]
+  matcher: ["/dashboard/:path*", "/assinaturas/:path*", "/dividas/:path*",  "/controle-mensal/:path*", "/perfil/:path*", "/login", "/register"]
 };

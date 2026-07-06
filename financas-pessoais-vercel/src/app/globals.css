@@ -1233,7 +1233,7 @@ button {
   display: grid;
   place-items: stretch;
   padding: 0;
-  background: #fff;
+  background: #f8fafc;
 }
 
 .auth-shell {
@@ -1242,7 +1242,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(420px, 520px);
   overflow: hidden;
-  background: #fff;
+  background: #f8fafc;
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -1256,9 +1256,8 @@ button {
   gap: 32px;
   padding: 42px;
   color: #fff;
-  background:
-    linear-gradient(90deg, rgba(7, 23, 43, 0.88) 0%, rgba(7, 23, 43, 0.66) 44%, rgba(7, 23, 43, 0.14) 100%),
-    url("/auth-finance-hero.png");
+  background: linear-gradient(90deg, rgba(2, 6, 23, 0.92) 0%, rgba(15, 23, 42, 0.76) 46%, rgba(15, 23, 42, 0.22) 100%),
+  url("/auth-finance-hero.png");
   background-position: center;
   background-size: cover;
 }
@@ -1278,7 +1277,7 @@ button {
 
 .auth-eyebrow,
 .auth-panel-kicker {
-  color: #0f766e;
+  color: #047857;
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0;
@@ -1286,7 +1285,7 @@ button {
 }
 
 .auth-eyebrow {
-  color: #86efac;
+  color: #6ee7b7;
 }
 
 .auth-visual h2 {
@@ -1336,9 +1335,8 @@ button {
   display: grid;
   align-content: center;
   padding: 54px;
-  background:
-    linear-gradient(180deg, rgba(236, 253, 245, 0.54) 0%, rgba(255, 255, 255, 0) 44%),
-    #fff;
+  background: #f8fafc;
+  border-left: 1px solid #e2e8f0;
 }
 
 .auth-panel-header {
@@ -1354,6 +1352,7 @@ button {
 
 .auth-panel h1 {
   margin: 0;
+  color: #0f172a;
   font-size: 34px;
   line-height: 1.12;
   letter-spacing: 0;
@@ -1361,7 +1360,7 @@ button {
 
 .auth-panel p {
   margin: 0;
-  color: var(--muted);
+  color: #475569;
   line-height: 1.55;
 }
 
@@ -1371,9 +1370,9 @@ button {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   padding: 6px;
-  border: 1px solid var(--border);
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  background: #eef6f5;
+  background: #e2e8f0;
 }
 
 .auth-switch a {
@@ -1381,14 +1380,14 @@ button {
   display: grid;
   place-items: center;
   border-radius: 8px;
-  color: var(--muted);
+  color: #475569;
   font-weight: 900;
 }
 
 .auth-switch a.active {
   color: #fff;
-  background: linear-gradient(135deg, #0f766e 0%, #2563eb 100%);
-  box-shadow: 0 10px 20px rgba(15, 118, 110, 0.22);
+  background: #0f172a;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
 }
 
 .auth-form {
@@ -1396,28 +1395,33 @@ button {
 }
 
 .auth-form .field label {
-  color: #344054;
+  color: #1e293b;
 }
 
 .auth-form .input {
   min-height: 48px;
-  border-color: #cbd8d5;
-  background: #fbfefd;
+  border-color: #cbd5e1;
+  background: #fff;
 }
 
 .auth-form .input::placeholder {
   color: #98a2b3;
 }
 
+.auth-form .input:focus {
+  border-color: #047857;
+  box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.12);
+}
+
 .auth-form .btn {
   min-height: 50px;
   margin-top: 4px;
-  background: linear-gradient(135deg, #0f766e 0%, #2563eb 100%);
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+  background: #047857;
+  box-shadow: 0 14px 28px rgba(4, 120, 87, 0.2);
 }
 
 .auth-form .btn:hover {
-  background: linear-gradient(135deg, #115e59 0%, #1d4ed8 100%);
+  background: #065f46;
 }
 
 .auth-note {
