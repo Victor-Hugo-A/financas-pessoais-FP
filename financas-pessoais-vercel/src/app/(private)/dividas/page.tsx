@@ -15,28 +15,32 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type RecordForm = {
   type: FinancialRecordType;
+  kind: "SIMPLE" | "INSTALLMENT" | "LOAN";
   personOrCompany: string;
   amount: string;
-  isInstallmentPlan: boolean;
   originalAmount: string;
   installmentCount: string;
   installmentValue: string;
   paidInstallments: string;
   date: string;
+  firstDueDate: string;
+  paymentMethod: string;
   description: string;
   status: FinancialRecordStatus;
 };
 
 const emptyForm: RecordForm = {
-  type: "RECEIVABLE",
+  type: "PAYABLE",
+  kind: "SIMPLE",
   personOrCompany: "",
   amount: "",
-  isInstallmentPlan: false,
   originalAmount: "",
   installmentCount: "",
   installmentValue: "",
   paidInstallments: "0",
   date: "",
+  firstDueDate: "",
+  paymentMethod: "",
   description: "",
   status: "PENDING"
 };
@@ -91,8 +95,10 @@ export default function RecordsPage() {
     };
   }, [items]);
 
+  const isInstallmentOrLoan = form.kind === "INSTALLMENT" || form.kind === "LOAN";
+
   const suggestedInstallmentValue = useMemo(() => {
-    if (!form.isInstallmentPlan) return null;
+    if (!form.isInstallmentOrLoan) return null;
 
     const baseAmount = parseMoneyInput(form.originalAmount || form.amount);
     const installments = parseIntegerInput(form.installmentCount);
@@ -100,7 +106,7 @@ export default function RecordsPage() {
     if (!baseAmount || !installments) return null;
 
     return Number((baseAmount / installments).toFixed(2));
-  }, [form.amount, form.installmentCount, form.isInstallmentPlan, form.originalAmount]);
+  }, [form.amount, form.installmentCount, isInstallmentOrLoan, form.originalAmount]);
 
   function resetForm() {
     setForm(emptyForm);
@@ -143,12 +149,17 @@ export default function RecordsPage() {
     setError("");
     setMessage("");
 
+    const isInstallmentOrLoan = form.kind === "INSTALLMENT" || form.kind === "LOAN";
+
     const payload = {
       ...form,
-      originalAmount: form.isInstallmentPlan ? form.originalAmount || form.amount : "",
-      installmentCount: form.isInstallmentPlan ? form.installmentCount : "",
-      installmentValue: form.isInstallmentPlan ? form.installmentValue : "",
-      paidInstallments: form.isInstallmentPlan ? form.paidInstallments || "0" : "0"
+      isInstallmentPlan: isInstallmentOrLoan,
+      originalAmount: isInstallmentOrLoan ? form.originalAmount || form.amount : "",
+      installmentCount: isInstallmentOrLoan ? form.installmentCount : "",
+      installmentValue: isInstallmentOrLoan ? form.installmentValue : "",
+      paidInstallments: isInstallmentOrLoan ? form.paidInstallments || "0" : "0",
+      firstDueDate: isInstallmentOrLoan ? form.firstDueDate || form.date : "",
+      paymentMethod: isInstallmentOrLoan ? form.paymentMethod : ""
     };
 
     if (editingId && amountReduction.trim()) {
@@ -163,7 +174,7 @@ export default function RecordsPage() {
 
       let nextAmount = Math.max(0, currentAmount - reduction);
 
-      if (form.isInstallmentPlan) {
+      if (form.isInstallmentOrLoan) {
         const installmentCount = parseIntegerInput(form.installmentCount);
         const currentPaidInstallments = parseIntegerInput(form.paidInstallments) ?? 0;
         const originalAmount = parseMoneyInput(form.originalAmount || form.amount);
@@ -186,7 +197,7 @@ export default function RecordsPage() {
       payload.amount = nextAmount.toFixed(2);
 
       if (nextAmount === 0) {
-        if (form.isInstallmentPlan && form.installmentCount) {
+        if (form.isInstallmentOrLoan && form.installmentCount) {
           payload.paidInstallments = form.installmentCount;
         }
 
@@ -341,7 +352,7 @@ export default function RecordsPage() {
             </div>
 
             <div className="field">
-              <label>{form.isInstallmentPlan ? (editingId ? "Saldo atual" : "Valor total") : editingId ? "Valor atual" : "Valor"}</label>
+              <label>{isInstallmentOrLoan ? (editingId ? "Saldo atual" : "Valor total") : editingId ? "Valor atual" : "Valor"}</label>
               <input
                 className="input"
                 type="number"
@@ -353,75 +364,100 @@ export default function RecordsPage() {
                   setForm({
                     ...form,
                     amount,
-                    originalAmount: !editingId && form.isInstallmentPlan ? amount : form.originalAmount
+                    originalAmount: !editingId && form.isInstallmentOrLoan ? amount : form.originalAmount
                   });
                 }}
                 required
               />
             </div>
 
-            <div className="field full">
-              <label className="checkbox-field">
-                <input
-                  checked={form.isInstallmentPlan}
-                  type="checkbox"
-                  onChange={(event) => {
-                    const isInstallmentPlan = event.target.checked;
-                    setForm({
-                      ...form,
-                      isInstallmentPlan,
-                      originalAmount: isInstallmentPlan ? form.originalAmount || form.amount : "",
-                      installmentCount: isInstallmentPlan ? form.installmentCount : "",
-                      installmentValue: isInstallmentPlan ? form.installmentValue : "",
-                      paidInstallments: isInstallmentPlan ? form.paidInstallments || "0" : "0"
-                    });
-                  }}
-                />
-                Parcelado / empréstimo
-              </label>
+            <div className="field">
+              <label>Tipo de registro</label>
+              <select
+                  className="select"
+                  value={form.kind}
+                  onChange={(event) =>
+                      setForm({
+                        ...form,
+                        kind: event.target.value as "SIMPLE" | "INSTALLMENT" | "LOAN",
+                        installmentCount: "",
+                        installmentValue: "",
+                        paidInstallments: "0",
+                        firstDueDate: "",
+                        paymentMethod: ""
+                      })
+                  }
+              >
+                <option value="SIMPLE">Dívida simples</option>
+                <option value="INSTALLMENT">Compra parcelada</option>
+                <option value="LOAN">Empréstimo</option>
+              </select>
             </div>
 
-            {form.isInstallmentPlan ? (
-              <>
-                <div className="field">
-                  <label>Quantidade de parcelas</label>
-                  <input
-                    className="input"
-                    type="number"
-                    min="1"
-                    value={form.installmentCount}
-                    onChange={(event) => setForm({ ...form, installmentCount: event.target.value })}
-                    required
-                  />
-                </div>
+            {isInstallmentOrLoan ? (
+                <>
+                  <div className="field">
+                    <label>Data inicial da cobrança</label>
+                    <input
+                        className="input"
+                        type="date"
+                        value={form.firstDueDate}
+                        onChange={(event) => setForm({ ...form, firstDueDate: event.target.value })}
+                        required
+                    />
+                  </div>
 
-                <div className="field">
-                  <label>Valor da parcela</label>
-                  <input
-                    className="input"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.installmentValue}
-                    onChange={(event) => setForm({ ...form, installmentValue: event.target.value })}
-                    placeholder={
-                      suggestedInstallmentValue ? `Ex.: ${formatCurrency(suggestedInstallmentValue)}` : "Calculado automaticamente"
-                    }
-                  />
-                </div>
+                  <div className="field">
+                    <label>Cartão ou forma de pagamento</label>
+                    <input
+                        className="input"
+                        value={form.paymentMethod}
+                        onChange={(event) => setForm({ ...form, paymentMethod: event.target.value })}
+                        placeholder="Ex.: Nubank, Inter, Pix, boleto..."
+                    />
+                  </div>
 
-                <div className="field">
-                  <label>Parcelas pagas</label>
-                  <input
-                    className="input"
-                    type="number"
-                    min="0"
-                    max={form.installmentCount || undefined}
-                    value={form.paidInstallments}
-                    onChange={(event) => setForm({ ...form, paidInstallments: event.target.value })}
-                  />
-                </div>
-              </>
+                  <div className="field">
+                    <label>Quantidade de parcelas</label>
+                    <input
+                        className="input"
+                        type="number"
+                        min="1"
+                        value={form.installmentCount}
+                        onChange={(event) => setForm({ ...form, installmentCount: event.target.value })}
+                        required
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>Valor da parcela</label>
+                    <input
+                        className="input"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={form.installmentValue}
+                        onChange={(event) => setForm({ ...form, installmentValue: event.target.value })}
+                        placeholder={
+                          suggestedInstallmentValue
+                              ? `Ex.: ${formatCurrency(suggestedInstallmentValue)}`
+                              : "Calculado automaticamente"
+                        }
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>Parcelas pagas</label>
+                    <input
+                        className="input"
+                        type="number"
+                        min="0"
+                        max={form.installmentCount || undefined}
+                        value={form.paidInstallments}
+                        onChange={(event) => setForm({ ...form, paidInstallments: event.target.value })}
+                    />
+                  </div>
+                </>
             ) : null}
 
             {editingId ? (
