@@ -57,6 +57,7 @@ export default function RegisterPage() {
             id="name"
             type="text"
             autoComplete="name"
+            placeholder={"Jorley Silva"}
             value={name}
             onChange={(event) => setName(event.target.value)}
             required
@@ -70,6 +71,7 @@ export default function RegisterPage() {
             id="email"
             type="email"
             autoComplete="email"
+            placeholder={"voce@email.com"}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
@@ -83,6 +85,7 @@ export default function RegisterPage() {
             id="password"
             type="password"
             autoComplete="new-password"
+            placeholder={"Digite no min 6 caracteres"}
             minLength={6}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
