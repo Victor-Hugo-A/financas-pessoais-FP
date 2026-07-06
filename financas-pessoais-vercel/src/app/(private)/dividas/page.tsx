@@ -98,7 +98,7 @@ export default function RecordsPage() {
   const isInstallmentOrLoan = form.kind === "INSTALLMENT" || form.kind === "LOAN";
 
   const suggestedInstallmentValue = useMemo(() => {
-    if (!form.isInstallmentOrLoan) return null;
+    if (!isInstallmentOrLoan) return null;
 
     const baseAmount = parseMoneyInput(form.originalAmount || form.amount);
     const installments = parseIntegerInput(form.installmentCount);
@@ -174,7 +174,7 @@ export default function RecordsPage() {
 
       let nextAmount = Math.max(0, currentAmount - reduction);
 
-      if (form.isInstallmentOrLoan) {
+      if (isInstallmentOrLoan) {
         const installmentCount = parseIntegerInput(form.installmentCount);
         const currentPaidInstallments = parseIntegerInput(form.paidInstallments) ?? 0;
         const originalAmount = parseMoneyInput(form.originalAmount || form.amount);
@@ -197,7 +197,7 @@ export default function RecordsPage() {
       payload.amount = nextAmount.toFixed(2);
 
       if (nextAmount === 0) {
-        if (form.isInstallmentOrLoan && form.installmentCount) {
+        if (isInstallmentOrLoan && form.installmentCount) {
           payload.paidInstallments = form.installmentCount;
         }
 
@@ -364,7 +364,7 @@ export default function RecordsPage() {
                   setForm({
                     ...form,
                     amount,
-                    originalAmount: !editingId && form.isInstallmentOrLoan ? amount : form.originalAmount
+                    originalAmount: !editingId && isInstallmentOrLoan ? amount : form.originalAmount
                   });
                 }}
                 required
