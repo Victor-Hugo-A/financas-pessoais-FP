@@ -139,9 +139,82 @@ export default function RecordsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  type MoneyField = "amount" | "originalAmount" | "installmentValue";
+
+  function formatMoneyForDisplay(value: number) {
+    return new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  }
+
   function parseMoneyInput(value: string) {
-    const parsed = Number(value.replace(",", "."));
+    if (!value) return null;
+
+    const text = value.trim().replace(/[^\d,.-]/g, "");
+
+    const normalized = text.includes(",")
+        ? text.replace(/\./g, "").replace(",", ".")
+        : text;
+
+    const parsed = Number(normalized);
+
     return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  function formatMoneyWhileTyping(value: string) {
+    const digits = value.replace(/\D/g, "");
+
+    if (!digits) return "";
+
+    const amount = Number(digits) / 100;
+
+    return formatMoneyForDisplay(amount);
+  }
+
+  function handleMoneyChange(field: MoneyField, value: string) {
+    const formattedValue = formatMoneyWhileTyping(value);
+
+    setForm((current) => {
+      const nextForm = {
+        ...current,
+        [field]: formattedValue
+      };
+
+      return recalculateInstallments(nextForm, field);
+    });
+  }
+
+  function recalculateInstallments(nextForm: RecordForm, changedField: MoneyField | "installmentCount") {
+    const isInstallmentOrLoan = nextForm.kind === "INSTALLMENT" || nextForm.kind === "LOAN";
+
+    if (!isInstallmentOrLoan) return nextForm;
+
+    const count = parseIntegerInput(nextForm.installmentCount);
+    if (!count || count <= 0) return nextForm;
+
+    const total = parseMoneyInput(nextForm.amount);
+    const installmentValue = parseMoneyInput(nextForm.installmentValue);
+
+    if ((changedField === "amount" || changedField === "installmentCount") && total !== null) {
+      return {
+        ...nextForm,
+        originalAmount: formatMoneyForDisplay(total),
+        installmentValue: formatMoneyForDisplay(total / count)
+      };
+    }
+
+    if ((changedField === "installmentValue" || changedField === "installmentCount") && installmentValue !== null) {
+      const totalCalculated = installmentValue * count;
+
+      return {
+        ...nextForm,
+        amount: formatMoneyForDisplay(totalCalculated),
+        originalAmount: formatMoneyForDisplay(totalCalculated)
+      };
+    }
+
+    return nextForm;
   }
 
   function parseIntegerInput(value: string) {
@@ -157,12 +230,32 @@ export default function RecordsPage() {
 
     const isInstallmentOrLoan = form.kind === "INSTALLMENT" || form.kind === "LOAN";
 
+    const amountNumber = parseMoneyInput(form.amount);
+    const installmentValueNumber = parseMoneyInput(form.installmentValue);
+    const installmentCountNumber = parseIntegerInput(form.installmentCount);
+
+    const resolvedAmount =
+        amountNumber ??
+        (installmentValueNumber !== null && installmentCountNumber
+            ? installmentValueNumber * installmentCountNumber
+            : null);
+
+    const resolvedInstallmentValue =
+        installmentValueNumber ??
+        (resolvedAmount !== null && installmentCountNumber
+            ? resolvedAmount / installmentCountNumber
+            : null);
+
     const payload = {
       ...form,
+      amount: resolvedAmount !== null ? resolvedAmount.toFixed(2) : form.amount,
       isInstallmentPlan: isInstallmentOrLoan,
-      originalAmount: isInstallmentOrLoan ? form.originalAmount || form.amount : "",
+      originalAmount: isInstallmentOrLoan && resolvedAmount !== null ? resolvedAmount.toFixed(2) : "",
       installmentCount: isInstallmentOrLoan ? form.installmentCount : "",
-      installmentValue: isInstallmentOrLoan ? form.installmentValue : "",
+      installmentValue:
+          isInstallmentOrLoan && resolvedInstallmentValue !== null
+              ? resolvedInstallmentValue.toFixed(2)
+              : "",
       paidInstallments: isInstallmentOrLoan ? form.paidInstallments || "0" : "0",
       firstDueDate: isInstallmentOrLoan ? form.firstDueDate || form.date : "",
       paymentMethod: isInstallmentOrLoan ? form.paymentMethod : ""
@@ -360,20 +453,13 @@ export default function RecordsPage() {
             <div className="field">
               <label>{isInstallmentOrLoan ? (editingId ? "Saldo atual" : "Valor total") : editingId ? "Valor atual" : "Valor"}</label>
               <input
-                className="input"
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.amount}
-                onChange={(event) => {
-                  const amount = event.target.value;
-                  setForm({
-                    ...form,
-                    amount,
-                    originalAmount: !editingId && isInstallmentOrLoan ? amount : form.originalAmount
-                  });
-                }}
-                required
+                  className="input"
+                  type="text"
+                  inputMode="numeric"
+                  value={form.amount}
+                  onChange={(event) => handleMoneyChange("amount", event.target.value)}
+                  placeholder="Ex.: 1.783,00"
+                  required
               />
             </div>
 
@@ -430,7 +516,14 @@ export default function RecordsPage() {
                         type="number"
                         min="1"
                         value={form.installmentCount}
-                        onChange={(event) => setForm({ ...form, installmentCount: event.target.value })}
+                        onChange={(event) => {
+                          const nextForm = {
+                            ...form,
+                            installmentCount: event.target.value
+                          };
+
+                          setForm(recalculateInstallments(nextForm, "installmentCount"));
+                        }}
                         required
                     />
                   </div>
@@ -439,11 +532,10 @@ export default function RecordsPage() {
                     <label>Valor da parcela</label>
                     <input
                         className="input"
-                        type="number"
-                        min="0"
-                        step="0.01"
+                        type="text"
+                        inputMode="numeric"
                         value={form.installmentValue}
-                        onChange={(event) => setForm({ ...form, installmentValue: event.target.value })}
+                        onChange={(event) => handleMoneyChange("installmentValue", event.target.value)}
                         placeholder={
                           suggestedInstallmentValue
                               ? `Ex.: ${formatCurrency(suggestedInstallmentValue)}`

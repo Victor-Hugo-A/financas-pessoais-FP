@@ -22,7 +22,16 @@ export function readOptionalString(value: unknown) {
 }
 
 export function readMoney(value: unknown, fieldName = "Valor") {
-  const normalized = typeof value === "string" ? value.replace(",", ".") : value;
+  let normalized: unknown = value;
+
+  if (typeof value === "string") {
+    const text = value.trim().replace(/[^\d,.-]/g, "");
+
+    normalized = text.includes(",")
+        ? text.replace(/\./g, "").replace(",", ".")
+        : text;
+  }
+
   const amount = Number(normalized);
 
   if (!Number.isFinite(amount) || amount < 0) {
